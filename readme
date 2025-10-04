@@ -1,0 +1,28 @@
+siriushq/trivialnotes
+=====================
+
+	Simple editor implementations for Standard Notes <https://standardnotes.com>.
+	Intentionally kept as minimal as possible.
+
+	This repository is mirrored at https://trivialnotes.sirius.cam.
+	Use that mirror to easily install into the editor.
+
+	e.g., https://trivialnotes.sirius.cam/plain/extension.json.
+
+dependencies
+============
+
+	Every editor depends on the below dependencies.
+	Files from them are in the `include` directory and must be manually updated.
+
+	name .............. version ......... license ...
+	sn-extension-api —— 0.4.0 ——————————— MIT ———————
+	petite-vue ———————— 0.4.1 ——————————— MIT ———————
+
+contributing
+============
+
+	Contributions are accepted as long as they fall within implied project scope.
+	
+	Sign off all of your commits with the `Signed-off-by` message footer,
+	and submit a PR proposing your change.

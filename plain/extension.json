@@ -1,0 +1,10 @@
+{
+	"identifier": "sirius.trivialnotes.plain",
+	"name": "siriushq/trivialnotes: Plain Text Editor",
+	"description": "see https://github.com/siriushq/trivialnotes",
+	"content": "SN|Component",
+	"area": "editor-editor",
+	"version": "1.0",
+	"url": "http://localhost:8080/plain/",
+	"latest_url": "http://localhost:8080/plain/extension.json"
+}
