@@ -5,6 +5,6 @@
 	"content": "SN|Component",
 	"area": "editor-editor",
 	"version": "1.0",
-	"url": "http://localhost:8080/plain/",
-	"latest_url": "http://localhost:8080/plain/extension.json"
+	"url": "https://trivialnotes.sirius.cam/plain/",
+	"latest_url": "https://trivialnotes.sirius.cam/plain/extension.json"
 }
