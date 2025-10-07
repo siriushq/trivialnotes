@@ -23,6 +23,6 @@ contributing
 ============
 
 	Contributions are accepted as long as they fall within implied project scope.
-	
-	Sign off all of your commits with the `Signed-off-by` message footer,
-	and submit a PR proposing your change.
+
+	Sign off all of your commits with the `Signed-off-by` message footer, and submit
+	a pull request proposing your change.
