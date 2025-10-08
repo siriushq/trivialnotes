@@ -1,0 +1,93 @@
+/*
+ * This file is provided to allow IDE auto completion of the
+ * StandardNotes CSS variables provided by `sn-extension-api`.
+ *
+ * It is not imported anywhere and should be manually updated.
+ */
+
+:root {
+	--sn-stylekit-base-font-size: unset;
+
+	--sn-stylekit-font-size-p: unset;
+	--sn-stylekit-font-size-editor: unset;
+
+	--sn-stylekit-font-size-h6: unset;
+	--sn-stylekit-font-size-h5: unset;
+	--sn-stylekit-font-size-h4: unset;
+	--sn-stylekit-font-size-h3: unset;
+	--sn-stylekit-font-size-h2: unset;
+	--sn-stylekit-font-size-h1: unset;
+
+	--sn-stylekit-neutral-color: unset;
+	--sn-stylekit-neutral-contrast-color: unset;
+
+	--sn-stylekit-info-color: unset;
+	--sn-stylekit-info-color-darkened: unset;
+	--sn-stylekit-info-contrast-color: unset;
+	--sn-stylekit-info-backdrop-color: unset;
+
+	--sn-stylekit-success-color: unset;
+	--sn-stylekit-success-contrast-color: unset;
+
+	--sn-stylekit-warning-color: unset;
+	--sn-stylekit-warning-contrast-color: unset;
+
+	--sn-stylekit-danger-color: unset;
+	--sn-stylekit-danger-contrast-color: unset;
+
+	--sn-stylekit-shadow-color: unset;
+	--sn-stylekit-background-color: unset;
+	--sn-stylekit-border-color: unset;
+	--sn-stylekit-foreground-color: unset;
+	--sn-stylekit-contrast-background-color: unset;
+	--sn-stylekit-contrast-foreground-color: unset;
+	--sn-stylekit-contrast-border-color: unset;
+
+	--sn-stylekit-secondary-background-color: unset;
+	--sn-stylekit-secondary-foreground-color: unset;
+	--sn-stylekit-secondary-border-color: unset;
+
+	--sn-stylekit-secondary-contrast-background-color: unset;
+	--sn-stylekit-secondary-contrast-foreground-color: unset;
+	--sn-stylekit-secondary-contrast-border-color: unset;
+
+	--sn-stylekit-editor-background-color: unset;
+	--sn-stylekit-editor-foreground-color: unset;
+
+	--sn-stylekit-paragraph-text-color: unset;
+
+	--sn-stylekit-input-placeholder-color: unset;
+	--sn-stylekit-input-border-color: unset;
+
+	--sn-stylekit-scrollbar-thumb-color: unset;
+	--sn-stylekit-scrollbar-track-border-color: unset;
+
+	--sn-stylekit-menu-border: unset;
+
+	--sn-stylekit-general-border-radius: unset;
+
+	--sn-stylekit-simplified-chinese-font: unset;
+	--sn-stylekit-monospace-font: unset;
+	--sn-stylekit-sans-serif-font: unset;
+	--sn-stylekit-editor-font-family: unset;
+
+	--sn-stylekit-theme-type: unset;
+	--sn-stylekit-theme-name: unset;
+
+	--sn-stylekit-passive-color-0: unset;
+	--sn-stylekit-passive-color-1: unset;
+	--sn-stylekit-passive-color-2: unset;
+	--sn-stylekit-passive-color-3: unset;
+	--sn-stylekit-passive-color-4: unset;
+	--sn-stylekit-passive-color-4-opacity-variant: unset;
+	--sn-stylekit-passive-color-5: unset;
+	--sn-stylekit-passive-color-6: unset;
+	--sn-stylekit-passive-color-super-light: unset;
+
+	--sn-stylekit-accessory-tint-color-1: unset;
+	--sn-stylekit-accessory-tint-color-2: unset;
+	--sn-stylekit-accessory-tint-color-3: unset;
+	--sn-stylekit-accessory-tint-color-4: unset;
+	--sn-stylekit-accessory-tint-color-5: unset;
+	--sn-stylekit-accessory-tint-color-6: unset;
+}

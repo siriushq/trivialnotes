@@ -1,0 +1,9 @@
+{
+	"identifier": "sirius.trivialnotes.monaco",
+	"name": "siriushq/trivialnotes: Monaco Editor",
+	"description": "see https://github.com/siriushq/trivialnotes",
+	"content_type": "SN|Component",
+	"area": "editor-editor",
+	"version": "1.0",
+	"url": "https://trivialnotes.sirius.cam/monaco/index.html"
+}

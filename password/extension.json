@@ -1,0 +1,9 @@
+{
+	"identifier": "sirius.trivialnotes.password",
+	"name": "siriushq/trivialnotes: Password Managing Editor",
+	"description": "see https://github.com/siriushq/trivialnotes",
+	"content_type": "SN|Component",
+	"area": "editor-editor",
+	"version": "1.0",
+	"url": "https://trivialnotes.sirius.cam/password/index.html"
+}

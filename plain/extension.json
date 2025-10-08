@@ -2,8 +2,8 @@
 	"identifier": "sirius.trivialnotes.plain",
 	"name": "siriushq/trivialnotes: Plain Text Editor",
 	"description": "see https://github.com/siriushq/trivialnotes",
-	"content": "SN|Component",
+	"content_type": "SN|Component",
 	"area": "editor-editor",
 	"version": "1.0",
-	"url": "https://trivialnotes.sirius.cam/plain/"
+	"url": "https://trivialnotes.sirius.cam/plain/index.html"
 }

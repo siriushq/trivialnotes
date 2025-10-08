@@ -2,27 +2,66 @@ siriushq/trivialnotes
 =====================
 
 	Simple editor implementations for Standard Notes <https://standardnotes.com>.
-	Intentionally kept as minimal as possible.
+	Intentionally kept as minimal as possible. Install from our mirror as such:
 
-	This repository is mirrored at https://trivialnotes.sirius.cam.
-	Use that mirror to easily install into the editor.
+		https://trivialnotes.sirius.cam/<editor>/extension.json
 
-	e.g., https://trivialnotes.sirius.cam/plain/extension.json.
+	...substituting the name of the editor you desire.
+	Installation has only been tested working from the desktop client, but the
+	editors function once installed across all platforms.
 
-dependencies
-============
+editors
+=======
 
-	Every editor depends on the below dependencies.
-	Files from them are in the `include` directory and must be manually updated.
+	Editors that store serialized data are designed to not clash with each other
+	or corrupt a note that may contain other data. It is not guaranteed that they
+	will not clash with third-party editors not part of this repository.
 
-	name .............. version ......... license ...
-	sn-extension-api —— 0.4.0 ——————————— MIT ———————
-	petite-vue ———————— 0.4.1 ——————————— MIT ———————
+	plain — a plain text editor that serves as the reference implementation for any
+	        editors in this repository (and debugging tool for developing new ones).
+
+	password — a password manager interface. this can store any kind of information
+	           on top of the actual accounts themselves. it uses Brandfetch to get
+	           logos for you, you should change the client ID when using it.
+
+	authenticator — a TOTP authenticator interface that only stores a name and secret
+	                for simple authentication, just like e.g. Okta Verify, except with
+	                secure multi-device sync powered by StandardNotes.
+
+	monaco — an editor that uses Monaco <https://microsoft.github.io/monaco-editor/>
+	         for viewing and editing code samples.
+
+	         note: if the content of a note is just pure JSON (i.e., it can be parsed
+	         as JSON and it begins with either '{' or '[', the content will be
+	         prettified for better viewing). prefix your note if you don't want this.
 
 contributing
 ============
 
 	Contributions are accepted as long as they fall within implied project scope.
 
-	Sign off all of your commits with the `Signed-off-by` message footer, and submit
-	a pull request proposing your change.
+	All commits must contain at least `Signed-off-by` to identify the author of the
+	contribution, and may contain `Co-authored-by` to attach any number of other
+	authors (this can be added automatically with `git commit ... -s ...`).
+
+	(furthermore, commits from people with repository write access are to be signed
+	with a verified GPG, SSH or S/MIME signature attached to your GitHub account).
+
+	By submitting a contribution, you certify that you and other authors are making
+	your contribution available under the license of the project, and that you have
+	the rights to submit it.
+
+security
+========
+
+	Every editor here is trivial enough that anyone with programming experience
+	should be able to audit it themselves with minimal hassle.
+
+	You may wish to audit the content of `trivialnotes.sirius.cam` & `esm.run`.
+
+licensing
+=========
+
+	This project is licensed under the 3-Clause BSD.
+	This is being done at our loss. Consider starring this repository and/or buying our
+	products to support the development and future of this project.
