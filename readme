@@ -35,6 +35,28 @@ editors
 	         as JSON and it begins with either '{' or '[', the content will be
 	         prettified for better viewing). prefix your note if you don't want this.
 
+development
+===========
+
+	To begin live editing, install Git & Bun and run the following commands:
+
+	1. Clone the repository
+	$ git clone git@github.com:siriushq/trivialnotes.git
+	$ cd trivialnotes
+
+	2. Point all extensions to localhost
+	$ sed -i 's|https://trivialnotes.sirius.cam|http://localhost:8080|' plain/extension.json
+	$ sed -i 's|https://trivialnotes.sirius.cam|http://localhost:8080|' password/extension.json
+	$ sed -i 's|https://trivialnotes.sirius.cam|http://localhost:8080|' monaco/extension.json
+
+	3. Run a live server for editing
+	$ bunx http-server -p 8080 --cors .
+
+	4. Revert change to extensions before contributing
+	$ sed -i 's|http://localhost:8080|https://trivialnotes.sirius.cam|' plain/extension.json
+	$ sed -i 's|http://localhost:8080|https://trivialnotes.sirius.cam|' password/extension.json
+	$ sed -i 's|http://localhost:8080|https://trivialnotes.sirius.cam|' monaco/extension.json
+
 contributing
 ============
 

@@ -7,10 +7,12 @@
 
     <script type="module">
     import { createApp } from "https://esm.run/petite-vue";
+
     import standardnotes from "https://esm.run/sn-extension-api";
     import "https://esm.run/sn-extension-api/dist/sn.min.css";
 
-    const EDITOR = "sirius.trivialnotes.password";
+    import extension from "./extension.json" with { type: "json" };
+
     createApp({
         content: [],
         history: [],
@@ -18,7 +20,7 @@
         brandfetch: "1bfwsmEH20zzEfSNTed",
 
         save(content, history) {
-            const editor = EDITOR;
+            const editor = extension.identifier;
             content = content.sort((first, second) => (first.index - second.index));
             history = history.sort((first, second) => (first.date - second.date));
             standardnotes.text = JSON.stringify({ content, history, editor });
@@ -36,7 +38,7 @@
                     throw new Error("text does not contain JSON object!");
                 }
                 let { editor, content, history } = JSON.parse(text);
-                if (editor && editor !== EDITOR) {
+                if (editor && editor !== extension.identifier) {
                     document.body.innerHTML = `
                     password manager stopped loading to protect your note content.<br/>
                     it seems like you may have used this on a JSON note that is not for this password manager.
@@ -297,7 +299,7 @@
             <div class="account-name">
                 <img :src="`https://cdn.brandfetch.io/${account.brand}/w/32/h/32?c=${brandfetch}`" width="32" height="32" draggable="false"/>
                 {{ account.account }}
-                <small>({{ account.brand }})</small>
+                <small>{{ account.brand }}</small>
             </div>
             <div class="account-username">
                 <strong>Username/Email</strong><br/>
