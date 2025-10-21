@@ -506,7 +506,7 @@
 			</div>
 			<div class="account-field">
 				<strong>Password</strong><br/>
-				{{ (account.password === "N/A") ? "N/A" : account.password }}
+				{{ (account.password === "N/A") ? "N/A" : obscure(account.password) }}
 			</div>
 			<template v-for="([key, value]) in filtered(account, ['index', 'account', 'brand', 'username', 'password'])">
 				<div class="account-field">
