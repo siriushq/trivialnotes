@@ -22,7 +22,8 @@ editors
 
 	password — a password manager interface. this can store any kind of information
 	           on top of the actual accounts themselves. it uses Brandfetch to get
-	           logos for you, you should change the client ID when using it.
+	           logos for you, you should change client ID when using it (included one
+	           is an anonymous default).
 
 	authenticator — a TOTP authenticator interface that only stores a name and secret
 	                for simple authentication, just like e.g. Okta Verify, except with

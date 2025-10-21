@@ -1,315 +1,520 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>siriushq/trivialnotes: Password Managing Editor</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>siriushq/trivialnotes: Password Managing Editor</title>
 
-    <script type="module">
-    import { createApp } from "https://esm.run/petite-vue";
+	<script type="module">
+	import { createApp } from "https://esm.run/petite-vue";
 
-    import standardnotes from "https://esm.run/sn-extension-api";
-    import "https://esm.run/sn-extension-api/dist/sn.min.css";
+	import standardnotes from "https://esm.run/sn-extension-api";
+	import "https://esm.run/sn-extension-api/dist/sn.min.css";
 
-    import extension from "./extension.json" with { type: "json" };
+	import extension from "./extension.json" with { type: "json" };
 
-    createApp({
-        content: [],
-        history: [],
-        selected: undefined,
-        brandfetch: "1bfwsmEH20zzEfSNTed",
+	createApp({
+		content: [],
+		history: [],
+		selected: undefined,
+		options: false,
+		editing: false,
+		brandfetch: "1bfwsmEH20zzEfSNTed",
 
-        save(content, history) {
-            const editor = extension.identifier;
-            content = content.sort((first, second) => (first.index - second.index));
-            history = history.sort((first, second) => (first.date - second.date));
-            standardnotes.text = JSON.stringify({ content, history, editor });
-        },
+		/** Save the `content` and `history` objects to StandardNotes. */
+		save() {
+			const editor = extension.identifier;
+			const brandfetch = this.brandfetch;
 
-        load() {
-            standardnotes.initialize();
-            standardnotes.subscribe(text => {
-                if (!text || !text.startsWith("{")) {
-                    document.body.innerHTML = `
-                    password manager stopped loading to protect your note content.<br/>
-                    to use this editor, you must initialise a note containing '{}'.<br/>
-                    if this is not detected, this editor does not run to prevent corruption!
-                    `;
-                    throw new Error("text does not contain JSON object!");
-                }
-                let { editor, content, history } = JSON.parse(text);
-                if (editor && editor !== extension.identifier) {
-                    document.body.innerHTML = `
-                    password manager stopped loading to protect your note content.<br/>
-                    it seems like you may have used this on a JSON note that is not for this password manager.
-                    `;
-                    throw new Error(`incorrect editor! note says '${editor}', should be ${EDITOR}`);
-                }
+			const content = this.content.sort((first, second) => (first.index - second.index));
+			const history = this.history.sort((first, second) => (first.date - second.date));
+			standardnotes.text = JSON.stringify({ content, history, editor, brandfetch });
+		},
 
-                if (!Array.isArray(content)) content = [];
-                if (!Array.isArray(history)) history = [];
-                this.content = content;
-                this.history = history;
-            });
-        },
+		/** Initialize the editor. */
+		load() {
+			standardnotes.initialize();
+			standardnotes.subscribe(text => {
+				if (!text || !text.startsWith("{")) {
+					document.body.innerHTML = `
+					password manager stopped loading to protect your note content.<br/>
+					to use this editor, you must initialise a note containing '{}'.<br/>
+					if this is not detected, this editor does not run to prevent corruption!
+					`;
+					throw new Error("text does not contain JSON object!");
+				}
+				let { editor, content, history } = JSON.parse(text);
+				if (editor && editor !== extension.identifier) {
+					document.body.innerHTML = `
+					password manager stopped loading to protect your note content.<br/>
+					it seems like you may have used this on a JSON note that is not for this password manager.
+					`;
+					throw new Error(`incorrect editor! note says '${editor}', should be ${EDITOR}`);
+				}
 
-        insert() {
-            const random = Math.floor(Math.random() * 100_000);
-            const date = Date.now();
-            const index = this.content.length;
+				if (!Array.isArray(content)) content = [];
+				if (!Array.isArray(history)) history = [];
+				this.content = content;
+				this.history = history;
+			});
+		},
 
-            const entry = {
-                index,
-                account: `Account ${random}`,
-                brand: `example.com`,
-                username: `${random}@acme.com`,
-                password: "password",
-            };
-            this.history.push({ date, index })
-            this.content.push(entry);
+		/** Reversibly create a new account entry. */
+		insert() {
+			const random = Math.floor(Math.random() * 100_000);
+			const date = Date.now();
+			const index = this.content.length;
 
-            this.save(this.content, this.history);
-        },
+			const entry = {
+				index,
+				account: `Account ${random}`,
+				brand: `example.com`,
+				username: `${random}@acme.com`,
+				password: "password",
+			};
+			this.history.push({ date, index })
+			this.content.push(entry);
 
-        key(index, name) {
-            const date = Date.now();
-            const previous = {};
+			this.save();
+		},
 
-            previous[name] = undefined;
+		/** Reversibly create a new unset key on the account, at the provided index, with the provided name. */
+		key(index, name) {
+			const date = Date.now();
+			const previous = {};
 
-            this.history.push({ date, index, previous });
-            this.content[index][name] = "N/A";
+			previous[name] = undefined;
 
-            this.save(this.content, this.history);
-        },
+			this.history.push({ date, index, previous });
+			this.content[index][name] = "N/A";
 
-        edit(index, key, value) {
-            const date = Date.now();
-            const previous = {};
+			this.save();
+		},
 
-            previous[key] = this.content[index][key];
+		/**
+		 * Reversibly edit the account, at the provided index, with the provided set of new keys and values.
+		 * Any missing fields in your changes will automatically be removed.
+		 */
+		edits(index, changes) {
+			const date = Date.now();
+			const previous = {};
 
-            this.history.push({ date, index, previous });
-            this.content[index][key] = value;
+			for (const key in this.content[index]) {
+				previous[key] = this.content[index][key];
+				this.content[index][key] = changes[key];
+			}
+			for (const key in changes) {
+				previous[key] = this.content[index][key];
+				this.content[index][key] = changes[key];
+			}
+			this.history.push({ date, index, previous });
 
-            this.save(this.content, this.history);
-        },
+			this.save();
+		},
 
-        delete(index) {
-            const date = Date.now();
-            const previous = this.content[index];
+		/** Reversibly edit the account, at the provided index, on the provided key, with the provided new value. */
+		edit(index, key, value) {
+			const date = Date.now();
+			const previous = {};
 
-            this.history.push({ date, index: undefined, previous });
-            this.content.splice(index, 1);
+			previous[key] = this.content[index][key];
 
-            this.save(this.content, this.history);
-        },
+			this.history.push({ date, index, previous });
+			this.content[index][key] = value;
 
-        undo() {
-            const history = this.history.pop();
+			this.save();
+		},
 
-            if (!history.index) {
-                const length = this.content.push(history.previous);
-                this.content[length - 1].index = (length - 1);
-                this.save(this.content, this.history);
-                return;
-            }
+		/** Reversibly delete an account in the editor, recording this change to history. */
+		remove() {
+			const date = Date.now();
+			const previous = this.content[this.selected];
 
-            const element = this.content[history.index];
-            if (!element) return;
+			this.history.push({ date, index: undefined, previous });
+			this.content.splice(this.selected, 1);
 
-            if (!history.previous) {
-                this.content.splice(history.index, 1);
-                this.save(this.content, this.history);
-                return;
-            }
+			this.save();
+			this.selected = undefined;
+		},
 
-            for (const [key, value] of Object.entries(history.previous)) {
-                this.content[history.index][key] = value;
-                this.save(this.content, this.history);
-            }
-        }
-    }).mount();
-    </script>
+		/** Undo a change in the editor, popping from the history. */
+		undo() {
+			const history = this.history.pop();
 
-    <style>
-    html, body {
-        margin: 0;
-        height: 100%;
+			if (history.index === undefined) {
+				const length = this.content.push(history.previous);
+				this.content[length - 1].index = (length - 1);
+				this.save();
+				return;
+			}
 
-        background-color: var(--sn-stylekit-editor-background-color);
-        color: var(--sn-stylekit-editor-foreground-color);
-    }
+			const element = this.content[history.index];
+			if (!element) return;
 
-    .actions {
-        position: fixed;
-        display: flex;
+			if (!history.previous) {
+				this.content.splice(history.index, 1);
+				this.save();
+				return;
+			}
 
-        left: 0;
-        right: 0;
-        top: 0;
+			for (const [key, value] of Object.entries(history.previous)) {
+				this.content[history.index][key] = value;
+				this.save();
+			}
+		},
 
-        align-items: center;
-        user-select: none;
+		/** Return the value of the provided HTML escape entity, e.g. `&bullet;`. */
+		entity(escape) {
+			const element = document.createElement("span");
+			element.innerHTML = escape;
+			return element.textContent;
+		},
 
-        height: 36px;
-        background-color: var(--sn-stylekit-editor-background-color);
-        border-bottom: var(--sn-stylekit-border-color) 1px solid;
-    }
+		/** Obscure half of the provided password with bullet symbols, returning e.g. `pass****`. */
+		obscure(password) {
+			const half = Math.ceil(password.length / 2);
+			const displayed = password.slice(half);
+			const obscured = "&bullet;".repeat(password.length - half);
+			return displayed + obscured;
+		},
 
-    .action {
-        margin-left: 12px;
-        transition: transform 150ms ease-out, background-color 150ms ease-out;
+		/** Return the provided object (e.g. `{}`) with every key defined in provided array (e.g. `["example"]`) excluded. */
+		filtered(object, array) {
+			return Object.entries(object)
+					.filter(([key]) => !array.includes(key));
+		},
 
-        font-family: var(--sn-stylekit-editor-font-family), sans-serif;
-        font-size: var(--sn-stylekit-font-size-editor);
+		/** Renames the provided key, in the provided object, with the new name, deleting the old one. */
+		rename(object, key, newKey) {
+			if (key === newKey) return object;
+			object[newKey] = object[key];
+			delete object[key];
+			return object;
+		}
+	}).mount();
+	</script>
 
-        color: var(--sn-stylekit-editor-foreground-color);
-        background-color: var(--background);
+	<style>
+	html, body {
+		margin: 0;
+		height: 100%;
 
-        border: none;
-        width: auto;
+		background-color: var(--sn-stylekit-editor-background-color);
+		color: var(--sn-stylekit-editor-foreground-color);
+	}
 
-        &:hover {
-            background-color: color-mix(in srgb, var(--background), white 20%);
-        }
+	.actions {
+		position: fixed;
+		display: flex;
 
-        &:active {
-            transform: scale(0.95);
-        }
-    }
+		left: 0;
+		right: 0;
+		top: 0;
 
-    .action-insert {
-        --background: var(--sn-stylekit-info-color);
-        cursor: pointer;
-    }
+		align-items: center;
+		user-select: none;
 
-    .action-delete {
-        --background: var(--sn-stylekit-danger-color);
-        cursor: pointer;
-    }
+		height: 36px;
+		background-color: var(--sn-stylekit-editor-background-color);
+		border-bottom: var(--sn-stylekit-border-color) 1px solid;
+	}
 
-    .action-deselect {
-        --background: var(--sn-stylekit-info-color-darkened);
-        cursor: pointer;
-    }
+	.action {
+		margin-left: 12px;
+		transition: transform 150ms ease-out, background-color 150ms ease-out;
 
-    .action-brandfetch {
-        --background: var(--sn-stylekit-editor-background-color);
-        cursor: text;
-        outline: none;
+		font-family: var(--sn-stylekit-editor-font-family), sans-serif;
+		font-size: var(--sn-stylekit-font-size-editor);
 
-        color: color-mix(in srgb, var(--sn-stylekit-border-color), white 20%);
-        border: var(--sn-stylekit-border-color) 1px solid;
-        transition: border 150ms ease-out;
+		color: var(--sn-stylekit-editor-foreground-color);
+		background-color: var(--background);
 
-        text-align: center;
-        width: 200px;
+		border: none;
+		width: auto;
 
-        &:hover {
-            background-color: var(--background);
-            border: color-mix(in srgb, var(--background), white 20%) 1px solid;
-        }
+		&:hover {
+			background-color: color-mix(in srgb, var(--background), white 20%);
+		}
 
-        &:active {
-            transform: none;
-        }
-    }
+		&:active {
+			transform: scale(0.95);
+		}
+	}
 
-    .accounts {
-        position: fixed;
-        display: grid;
-        user-select: none;
+	.action-insert {
+		--background: var(--sn-stylekit-info-color);
+		cursor: pointer;
+	}
+	.action-undo {
+		--background: var(--sn-stylekit-warning-color);
+		cursor: pointer;
+	}
+	.action-remove {
+		--background: var(--sn-stylekit-danger-color);
+		cursor: pointer;
+	}
+	.action-deselect {
+		--background: var(--sn-stylekit-info-color-darkened);
+		cursor: pointer;
+	}
+	.action-edit {
+		--background: var(--sn-stylekit-info-color-darkened);
+		cursor: pointer;
+	}
+	.action-options {
+		--background: var(--sn-stylekit-warning-color);
+		cursor: pointer;
+	}
+	.action-save {
+		--background: var(--sn-stylekit-info-color-darkened);
+		cursor: pointer;
+	}
+	.action-cancel {
+		--background: var(--sn-stylekit-danger-color);
+		cursor: pointer;
+	}
+	.action-key {
+		--background: var(--sn-stylekit-info-color-darkened);
+		cursor: pointer;
+	}
 
-        font-family: var(--sn-stylekit-editor-font-family), sans-serif;
-        font-size: var(--sn-stylekit-font-size-editor);
+	.accounts {
+		position: fixed;
+		display: grid;
+		user-select: none;
 
-        left: 12px;
-        right: 12px;
-        top: calc(36px + 12px);
-        bottom: 12px;
+		font-family: var(--sn-stylekit-editor-font-family), sans-serif;
+		font-size: var(--sn-stylekit-font-size-editor);
 
-        grid-template-columns: 1fr;
-        grid-auto-rows: min-content;
+		left: 12px;
+		right: 12px;
+		top: calc(36px + 12px);
+		bottom: 12px;
 
-        grid-gap: 1px;
-        height: min-content;
-        background-color: var(--sn-stylekit-border-color);
-        border: var(--sn-stylekit-border-color) 1px solid;
-    }
+		grid-template-columns: 1fr;
+		grid-auto-rows: min-content;
 
-    .account {
-        display: grid;
-        gap: 8px;
+		grid-gap: 1px;
+		height: min-content;
+		background-color: var(--sn-stylekit-border-color);
+		border: var(--sn-stylekit-border-color) 1px solid;
+	}
 
-        padding: 12px;
-        background-color: var(--sn-stylekit-background-color);
+	.account {
+		display: grid;
+		gap: 8px;
 
-        &:hover {
-            background-color: var(--sn-stylekit-contrast-background-color);
-        }
+		padding: 12px;
+		background-color: var(--sn-stylekit-background-color);
 
-        &.selected {
-            background-color: var(--sn-stylekit-contrast-background-color);
-            border-left: var(--sn-stylekit-info-color-darkened) 2px solid;
-            padding-left: 16px;
-        }
-    }
+		&:hover {
+			background-color: var(--sn-stylekit-contrast-background-color);
+		}
 
-    strong {
-        font-weight: normal !important;
-        color: var(--sn-stylekit-passive-color-0);
-    }
-    small {
-        color: var(--sn-stylekit-passive-color-0);
-        font-size: 14px !important;
-    }
+		&.selected {
+			background-color: var(--sn-stylekit-contrast-background-color);
+			border-left: var(--sn-stylekit-info-color-darkened) 2px solid;
+			padding-left: 16px;
+		}
+	}
+	strong {
+		font-weight: normal !important;
+		color: var(--sn-stylekit-passive-color-0);
+	}
+	small {
+		color: var(--sn-stylekit-passive-color-0);
+		font-size: 14px !important;
+	}
+	.account-name {
+		font-size: 20px;
+		line-height: 32px;
 
-    .account-name {
-        font-size: 20px;
-        line-height: 32px;
+		display: flex;
+		align-items: center;
+		gap: 12px;
 
-        display: flex;
-        align-items: center;
-        gap: 12px;
+		> img {
+			border-radius: 8px;
+		}
+	}
+	.account-field {
+		margin-left: calc(32px + 12px);
+	}
 
-        > img {
-            border-radius: 8px;
-        }
-    }
+	.modal {
+		position: fixed;
+		z-index: 1;
 
-    .account-username {
-        margin-left: calc(32px + 12px);
-    }
+		background: color-mix(in srgb, var(--sn-stylekit-editor-background-color), transparent 20%);
+		backdrop-filter: blur(8px);
+		color: var(--sn-stylekit-editor-foreground-color);
 
-    .account-password {
-        margin-left: calc(32px + 12px);
-    }
-    </style>
+		height: 100%;
+		padding: 48px;
+
+		> label {
+			display: block;
+			font-family: var(--sn-stylekit-editor-font-family), sans-serif;
+			margin-bottom: 24px;
+
+			> .label-title {
+				display: block;
+				color: var(--sn-stylekit-info-color);
+				font-size: 20px;
+			}
+			> .label-subtitle {
+				display: block;
+				color: var(--sn-stylekit-editor-foreground-color);
+				font-size: 16px;
+			}
+			input {
+				transition: border 150ms ease-out;
+				border: var(--sn-stylekit-border-color) 1px solid;
+				margin-top: 16px;
+
+				text-align: center;
+				width: 200px;
+
+				font-family: var(--sn-stylekit-editor-font-family), sans-serif;
+				font-size: var(--sn-stylekit-font-size-editor);
+
+				color: color-mix(in srgb, var(--sn-stylekit-border-color), white 40%);
+				background-color: var(--sn-stylekit-editor-background-color);
+
+				cursor: text;
+				outline: none;
+
+				&:hover {
+					border: color-mix(in srgb, var(--sn-stylekit-border-color), white 20%) 1px solid;
+				}
+			}
+			code {
+				display: block;
+				overflow-y: scroll;
+				height: 25vh;
+
+				&::-webkit-scrollbar {
+					width: 6px;
+					background: var(--sn-stylekit-editor-background-color);
+				}
+				&::-webkit-scrollbar-thumb {
+					background: var(--sn-stylekit-info-color);
+					border-radius: 3px;
+				}
+			}
+		}
+	}
+
+	.editor-actions {
+		position: fixed;
+		display: flex;
+
+		left: 0;
+		right: 0;
+
+		align-items: center;
+		user-select: none;
+
+		height: 36px;
+		background-color: var(--sn-stylekit-editor-background-color);
+		border-top: var(--sn-stylekit-border-color) 1px solid;
+		border-bottom: var(--sn-stylekit-border-color) 1px solid;
+	}
+	</style>
 </head>
 <body v-scope @vue:mounted="load">
-    <div class="actions">
-        <button class="action action-insert" @click="insert()">Insert</button>
-        <button class="action action-delete" v-if="selected != undefined">Delete</button>
-        <button class="action action-deselect" v-if="selected != undefined" @click="selected = undefined">Deselect</button>
-        <input class="action action-brandfetch" v-model="brandfetch" type="password" placeholder="Brandfetch Client ID">
-    </div>
-    <div class="accounts">
-        <div v-for="account in content" @click="selected = account.index" :class="(selected != account.index) ? 'account' : 'account selected'">
-            <div class="account-name">
-                <img :src="`https://cdn.brandfetch.io/${account.brand}/w/32/h/32?c=${brandfetch}`" width="32" height="32" draggable="false"/>
-                {{ account.account }}
-                <small>{{ account.brand }}</small>
-            </div>
-            <div class="account-username">
-                <strong>Username/Email</strong><br/>
-                {{ account.username }}
-            </div>
-            <div class="account-password">
-                <strong>Password</strong><br/>
-                {{ account.password }}
-            </div>
-        </div>
-    </div>
+	<div class="actions">
+		<button class="action action-insert" @click="insert()">Insert</button>
+		<button class="action action-undo" @click="undo()">Undo</button>
+		<button class="action action-remove" @click="remove()" v-if="selected != undefined">Remove</button>
+		<button class="action action-deselect" @click="selected = undefined" v-if="selected != undefined">Deselect</button>
+		<button class="action action-edit" @click="editing = true" v-if="selected != undefined">Edit</button>
+		<button class="action action-options" @click="options = true">Options</button>
+	</div>
+	<div class="modal" v-if="options" @click="options = false">
+		<label @click.stop>
+			<span class="label-title">Brandfetch Client ID</span>
+			<span class="label-subtitle">The client ID to use for fetching account icons based on their assigned brand.</span>
+			<input v-model="brandfetch" type="password"/>
+		</label>
+		<label @click.stop>
+			<span class="label-title">History</span>
+			<span class="label-subtitle">
+				Below is the raw data of all saved history with passwords concealed.
+				This is stored in a custom comparative format designed for this editor.
+				Use a plain text editor to modify or remove if the data is too large or has inconsistencies.
+			</span>
+			<code><pre>{{ JSON.stringify(history, null, "\t") }}</pre></code>
+		</label>
+	</div>
+	<div class="modal" v-if="editing" v-scope="{ changes: { ...content[selected] } }">
+		<label>
+			<span class="label-title">Display name</span>
+			<span class="label-subtitle">An alias to name the account with.</span>
+			<input v-model="changes.account" type="text"/>
+		</label>
+		<label>
+			<span class="label-title">Brand name</span>
+			<span class="label-subtitle">This is used when calling Brandfetch to get the icon, and also displayed next to the account name.</span>
+			<input v-model="changes.brand" type="text"/>
+		</label>
+		<label>
+			<span class="label-title">Username or Email</span>
+			<span class="label-subtitle">Either a username or email (detects as email if it contains an '@'), use a custom field if you need both.</span>
+			<input v-model="changes.username" type="text"/>
+		</label>
+		<label>
+			<span class="label-title">Password</span>
+			<span class="label-subtitle">A password in plain text (this is obscured when displayed). Use "N/A" to exclude.</span>
+			<input v-model="changes.password" type="text"/>
+		</label>
+		<label>
+			<span class="label-title">Custom fields</span>
+			<span class="label-subtitle">
+				Configure any other custom fields below. They will always be displayed in plain text.
+				Reserved keywords include "index", "account", "brand", "username" & "password".
+				Field names are case-sensitive, so you can also use a field name such as "Username".
+			</span>
+			<span class="label-subtitle">
+				<template v-for="([key, value]) in filtered(changes, ['index', 'account', 'brand', 'username', 'password'])">
+					<br/>
+					<input type="text" :value="key" @input="event => { changes = rename(changes, key, event.target.value) }" placeholder="Key"/>
+					<input type="text" :value="value" @input="event => { changes[key] = event.target.value }" placeholder="Value"/>
+				</template>
+				<span v-scope="{ newKey: '' }">
+					<br/>
+					<input type="text" v-model="newKey" placeholder="New Key"/>
+					<button class="action action-key" @click="{ changes[newKey] = 'N/A'; newKey = ''; }">Insert new key</button>
+				</span>
+			</span>
+		</label>
+		<div class="editor-actions">
+			<button class="action action-save" @click="edits(selected, changes); editing = false;">Save</button>
+			<button class="action action-cancel" @click="editing = false; selected = undefined;">Cancel</button>
+		</div>
+	</div>
+	<div class="accounts">
+		<div v-for="account in content" @click="selected = account.index" :class="(selected != account.index) ? 'account' : 'account selected'">
+			<div class="account-name">
+				<img :src="`https://cdn.brandfetch.io/${account.brand}/w/32/h/32?c=${brandfetch}`" width="32" height="32" draggable="false"/>
+				{{ account.account }}
+				<small>{{ account.brand }}</small>
+			</div>
+			<div class="account-field">
+				<strong>{{ account.username.includes("@") ? "Email" : "Username" }}</strong><br/>
+				{{ account.username }}
+			</div>
+			<div class="account-field">
+				<strong>Password</strong><br/>
+				{{ (account.password === "N/A") ? "N/A" : account.password }}
+			</div>
+			<template v-for="([key, value]) in filtered(account, ['index', 'account', 'brand', 'username', 'password'])">
+				<div class="account-field">
+					<strong>{{ key }}</strong><br/>
+					{{ value }}
+				</div>
+			</template>
+		</div>
+	</div>
 </body>
 </html>
