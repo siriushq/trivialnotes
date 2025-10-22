@@ -42,7 +42,7 @@ createApp({
 	async key(pin, salt) {
 		const encoded = this.encoder.encode(pin);
 		const aes = { name: "AES-GCM", length: 256 };
-		const pbkdf2 = { name: "PBKDF2", hash: "SHA256", iterations: 100_000, salt }
+		const pbkdf2 = { name: "PBKDF2", hash: "SHA-256", iterations: 100_000, salt }
 
 		const candidate = await window.crypto.subtle.importKey("raw", encoded, "PBKDF2", false, ["deriveKey"]);
 		return await window.crypto.subtle.deriveKey(pbkdf2, candidate, aes, false, ["encrypt", "decrypt"]);
@@ -64,7 +64,7 @@ createApp({
 	/** Decrypt the provided payload with the provided PIN. */
 	async decrypt(payload, pin) {
 		const salt = this.buffer(payload.substring(0, 32));
-		const vector = this.buffer(payload.substring(32, 24));
+		const vector = this.buffer(payload.substring(32, 56));
 		const data = this.buffer(payload.substring(56));
 		const key = await this.key(pin, salt);
 
