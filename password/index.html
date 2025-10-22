@@ -66,8 +66,10 @@
 			<span class="label-subtitle">
 				<template v-for="([key, value]) in filtered(changes, ['index', 'account', 'brand', 'username', 'password'])">
 					<br/>
-					<input type="text" :value="key" @input="event => { changes = rename(changes, key, event.target.value) }" placeholder="Key"/>
-					<input type="text" :value="value" @input="event => { changes[key] = event.target.value }" placeholder="Value"/>
+					<span>"{{ key }}": </span>
+					<!-- :value="value" @input="event => { changes[key] = event.target.value }" -->
+					<input type="text" v-model="changes[key]" placeholder="Value"/>
+					<button class="action action-remove" @click="delete changes[key]">Remove</button>
 				</template>
 				<span v-scope="{ newKey: '' }">
 					<br/>
@@ -98,7 +100,7 @@
 				{{ (account.password === "N/A") ? "N/A" : obscure(account.password) }}
 			</div>
 			<template v-for="([key, value]) in filtered(account, ['index', 'account', 'brand', 'username', 'password'])">
-				<div class="account-field">
+				<div class="account-field" v-show="value">
 					<strong>{{ key }}</strong><br/>
 					{{ value }}
 				</div>

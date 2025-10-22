@@ -166,21 +166,17 @@ createApp({
 	obscure(password) {
 		const half = Math.ceil(password.length / 2);
 		const displayed = password.slice(half);
-		const obscured = "&bullet;".repeat(password.length - half);
-		return displayed + obscured;
+		const obscured = this.entity("&bullet;").repeat(password.length - half);
+		return obscured + displayed;
 	},
 
-	/** Return the provided object (e.g. `{}`) with every key defined in provided array (e.g. `["example"]`) excluded. */
+	/**
+	 * Return the provided object (e.g. `{}`) with:
+	 * - every key defined in the provided array (e.g. `["example"]`) excluded,
+	 * - all undefined fields excluded.
+	 */
 	filtered(object, array) {
 		return Object.entries(object)
-				.filter(([key]) => !array.includes(key));
+				.filter(([key, value]) => !array.includes(key) && (value !== undefined));
 	},
-
-	/** Renames the provided key, in the provided object, with the new name, deleting the old one. */
-	rename(object, key, newKey) {
-		if (key === newKey) return object;
-		object[newKey] = object[key];
-		delete object[key];
-		return object;
-	}
 }).mount();
