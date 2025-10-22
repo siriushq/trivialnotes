@@ -1,0 +1,9 @@
+{
+	"identifier": "sirius.trivialnotes.authenticator",
+	"name": "siriushq/trivialnotes: TOTP Authenticating Editor",
+	"description": "see https://github.com/siriushq/trivialnotes",
+	"content_type": "SN|Component",
+	"area": "editor-editor",
+	"version": "1.0",
+	"url": "http://trivialnotes.sirius.cam:8080/authenticator/index.html"
+}
