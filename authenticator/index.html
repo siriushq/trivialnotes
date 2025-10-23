@@ -10,11 +10,11 @@
 </head>
 <body v-scope @vue:mounted="load">
 	<div v-if="authenticating">
-		<input class="input" type="text" @input="unlock($event.target.value)" placeholder="Enter your PIN"/>
+		<input class="input" type="number" @input="unlock($event.target.value)" placeholder="Enter your PIN"/>
 	</div>
 
 	<div v-if="locking" v-scope="{ newPin: '' }">
-		<input class="input" type="text" v-model="newPin" placeholder="Enter a PIN to lock with"/>
+		<input class="input" type="number" v-model="newPin" placeholder="Enter a PIN to lock with"/>
 		<button type="submit" @click="lock(newPin)">Submit</button>
 	</div>
 
