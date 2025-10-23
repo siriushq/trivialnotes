@@ -10,14 +10,36 @@ createApp({
 	decoder: new TextDecoder(),
 	encoder: new TextEncoder(),
 
+	/** Whether the authentication screen should be displayed. */
+	authenticating: true,
+
+	/** Whether the user is authenticating for the first time (setting their PIN). */
+	locking: false,
+
+	/** Whether the user is attempting to delete an account. */
+	deleting: false,
+
+	/** A ciphertext used to verify that the entered PIN is correct. */
+	ciphertext: "",
+
+	/** @type {Array<{ index: number, name: string, secret: string }>} */
 	accounts: [],
+
+	/** The index of the currently selected account. */
+	selected: undefined,
+
+	/** The currently entered PIN. */
 	pin: "",
 
 	/** Save to StandardNotes. */
-	save() {
+	async save() {
 		const editor = extension.identifier;
-		const accounts = this.accounts.sort((first, second) => (first.index - second.index));
-		standardnotes.text = JSON.stringify({ accounts, editor });
+		const ciphertext = await this.encrypt(editor, this.pin);
+		const accounts = await Promise.all(this.accounts
+				.sort((first, second) => (first.index - second.index))
+				.map(account => JSON.stringify(account))
+				.map(async account => await this.encrypt(account, this.pin)));
+		standardnotes.text = JSON.stringify({ accounts, ciphertext, editor });
 	},
 
 	/** Initialize the editor. */
@@ -31,17 +53,62 @@ createApp({
 				if this is not detected, this editor does not run to prevent corruption!`;
 				throw new Error("text does not contain JSON object!");
 			}
-			let { editor, accounts } = JSON.parse(text);
+			let { editor, ciphertext, accounts } = JSON.parse(text);
 			if (editor && editor !== extension.identifier) {
 				document.body.innerHTML = `
 				authenticator stopped loading to protect your note content.<br/>
 				it seems like you may have used this on a JSON note that is not for this authenticator.`;
-				throw new Error(`incorrect editor! note says '${editor}', should be ${EDITOR}`);
+				throw new Error(`incorrect editor! note says '${editor}', should be ${extension.identifier}`);
 			}
 
 			if (!Array.isArray(accounts)) accounts = [];
 			this.accounts = accounts;
+
+			if (!ciphertext) {
+				this.authenticating = false;
+				this.locking = true;
+				return;
+			}
+			this.ciphertext = ciphertext;
 		});
+	},
+
+	/** Lock the editor with the provided PIN, on the first initialization. */
+	async lock(pin) {
+		this.pin = pin;
+		this.ciphertext = extension.identifier;
+		this.locking = false;
+	},
+
+	/** Unlock the editor after initialization. */
+	async unlock(pin) {
+		this.pin = pin;
+
+		const editor = extension.identifier;
+		const ciphertext = await this.decrypt(this.ciphertext, pin);
+		if (ciphertext !== editor) return;
+
+		this.authenticating = false;
+		this.accounts = await Promise.all(this.accounts
+				.map(account => this.decrypt(account, pin))
+				.map(async account => JSON.parse(await account)));
+	},
+
+	/** Add an account with the provided name and secret. */
+	async account(name, secret) {
+		this.accounts.push({
+			index: this.accounts.length,
+			name,
+			secret
+		});
+		await this.save();
+	},
+
+	/** Remove the currently selected account. */
+	remove() {
+		if (this.selected === undefined) return;
+		this.accounts.splice(this.selected, 1);
+		this.accounts.forEach((account, index) => (account.index = index));
 	},
 
 	/** Generates a random 16-byte salt. */
@@ -154,10 +221,9 @@ createApp({
 		return 30 - (epoch % 30);
 	},
 
-	test123() {
-		this.totp("23TplPdS46Juzcyx").then(totp => {
-			console.log(totp);
-			console.log(this.totpRemaining());
-		});
+	/** Returns a string for the provided TOTP code, split in the middle (i.e. `000 000`). */
+	totpFormat(code) {
+		const string = String(code);
+		return string.slice(0, 3) + " " + string.slice(3);
 	}
 }).mount();

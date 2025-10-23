@@ -39,7 +39,7 @@ createApp({
 				document.body.innerHTML = `
 				password manager stopped loading to protect your note content.<br/>
 				it seems like you may have used this on a JSON note that is not for this password manager.`;
-				throw new Error(`incorrect editor! note says '${editor}', should be ${EDITOR}`);
+				throw new Error(`incorrect editor! note says '${editor}', should be ${extension.identifier}`);
 			}
 
 			if (!Array.isArray(content)) content = [];

@@ -9,6 +9,42 @@
 	<link rel="stylesheet" href="index.css"/>
 </head>
 <body v-scope @vue:mounted="load">
-	<button @click="test123()">test123</button>
+	<div v-if="authenticating">
+		<input class="input" type="text" @input="unlock($event.target.value)" placeholder="Enter your PIN"/>
+	</div>
+
+	<div v-if="locking" v-scope="{ newPin: '' }">
+		<input class="input" type="text" v-model="newPin" placeholder="Enter a PIN to lock with"/>
+		<button type="submit" @click="lock(newPin)">Submit</button>
+	</div>
+
+	<template v-if="!authenticating && !locking">
+		<div class="toolbar" v-scope="{ remaining: 0, accountName: '', accountSecret: '' }">
+			<span class="timer" @vue:mounted="setInterval(() => { remaining = totpRemaining() }, 500)">
+				{{ remaining }}s
+			</span>
+
+			<input class="input" type="text" placeholder="Account Name" v-model="accountName"/>
+			<input class="input" type="text" placeholder="Account Secret" v-model="accountSecret"/>
+			<button class="action action-insert" type="submit" @click="account(accountName, accountSecret)">Insert</button>
+
+			<button class="action action-remove" v-if="selected !== undefined" @click="remove()">Delete</button>
+			<button class="action action-deselect" v-if="selected !== undefined" @click="selected = undefined">Deselect</button>
+		</div>
+
+		<div class="accounts">
+			<template v-for="account of accounts">
+				<div :class="(account === accounts[selected]) ? 'account selected' : 'account'"
+					 v-scope="{ code: 0, interval: undefined }"
+					 @click="selected = account.index">
+					<span class="account-name">{{ account.name }}</span>
+					<span class="account-code"
+						  @click.stop="navigator.clipboard.writeText(code)"
+						  @vue:mounted="interval = setInterval(async() => { code = await totp(account.secret) }, 1000)"
+						  @vue:unmounted="clearInterval(interval)">{{ totpFormat(code) }}</span>
+				</div>
+			</template>
+		</div>
+	</template>
 </body>
 </html>

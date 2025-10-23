@@ -67,7 +67,6 @@
 				<template v-for="([key, value]) in filtered(changes, ['index', 'account', 'brand', 'username', 'password'])">
 					<br/>
 					<span>"{{ key }}": </span>
-					<!-- :value="value" @input="event => { changes[key] = event.target.value }" -->
 					<input type="text" v-model="changes[key]" placeholder="Value"/>
 					<button class="action action-remove" @click="delete changes[key]">Remove</button>
 				</template>
