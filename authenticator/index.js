@@ -148,9 +148,16 @@ createApp({
 		return (code % 1_000_000).toString().padStart(6, "0");
 	},
 
+	/** Returns how long a TOTP code generated on the current clock has remaining. */
+	totpRemaining() {
+		const epoch = Math.floor(Date.now() / 1000);
+		return 30 - (epoch % 30);
+	},
+
 	test123() {
-		setTimeout(() => {
-			console.log(this.totp("23TplPdS46Juzcyx"));
-		}, 600);
+		this.totp("23TplPdS46Juzcyx").then(totp => {
+			console.log(totp);
+			console.log(this.totpRemaining());
+		});
 	}
 }).mount();
