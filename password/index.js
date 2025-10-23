@@ -13,7 +13,7 @@ createApp({
 	editing: false,
 	brandfetch: "1bfwsmEH20zzEfSNTed",
 
-	/** Save the `content` and `history` objects to StandardNotes. */
+	/** Save to StandardNotes. */
 	save() {
 		const editor = extension.identifier;
 		const brandfetch = this.brandfetch;
@@ -31,16 +31,14 @@ createApp({
 				document.body.innerHTML = `
 				password manager stopped loading to protect your note content.<br/>
 				to use this editor, you must initialise a note containing '{}'.<br/>
-				if this is not detected, this editor does not run to prevent corruption!
-				`;
+				if this is not detected, this editor does not run to prevent corruption!`;
 				throw new Error("text does not contain JSON object!");
 			}
 			let { editor, content, history } = JSON.parse(text);
 			if (editor && editor !== extension.identifier) {
 				document.body.innerHTML = `
 				password manager stopped loading to protect your note content.<br/>
-				it seems like you may have used this on a JSON note that is not for this password manager.
-				`;
+				it seems like you may have used this on a JSON note that is not for this password manager.`;
 				throw new Error(`incorrect editor! note says '${editor}', should be ${EDITOR}`);
 			}
 

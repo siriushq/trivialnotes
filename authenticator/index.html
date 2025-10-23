@@ -1,18 +1,14 @@
 <!doctype html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport"
-		  content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-	<meta http-equiv="X-UA-Compatible" content="ie=edge">
-	<title>Document</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>siriushq/trivialnotes: TOTP Authenticating Editor</title>
 
 	<script type="module" src="index.js"></script>
+	<link rel="stylesheet" href="index.css"/>
 </head>
-<body v-scope>
-	<input v-model="test123" placeholder="INPUT"/>
-	<input v-model="test123pin" placeholder="PIN"/>
-	<button @click="encrypt(test123, test123pin)">ENCRYPT</button>
-	<button @click="decrypt(test123, test123pin)">DECRYPT</button>
+<body v-scope @vue:mounted="load">
+	<button @click="test123()">test123</button>
 </body>
 </html>

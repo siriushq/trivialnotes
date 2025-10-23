@@ -8,7 +8,7 @@ siriushq/trivialnotes
 
 	...substituting the name of the editor you desire.
 	Installation has only been tested working from the desktop client, but the
-	editors function once installed across all platforms.
+	editors function across all platforms, once installed.
 
 editors
 =======
@@ -29,6 +29,9 @@ editors
 	                for simple authentication, just like e.g. Okta Verify, except with
 	                secure multi-device sync powered by StandardNotes.
 
+	                note: this editor must be served over HTTPS due to limitations of
+	                SubtleCrypto API <developer.mozilla.org/docs/Web/API/SubtleCrypto>.
+
 	monaco — an editor that uses Monaco <https://microsoft.github.io/monaco-editor/>
 	         for viewing and editing code samples.
 
@@ -48,6 +51,7 @@ development
 	2. Point all extensions to localhost
 	$ sed -i 's|https://trivialnotes.sirius.cam|http://localhost:8080|' plain/extension.json
 	$ sed -i 's|https://trivialnotes.sirius.cam|http://localhost:8080|' password/extension.json
+	$ sed -i 's|https://trivialnotes.sirius.cam|http://localhost:8080|' authenticator/extension.json
 	$ sed -i 's|https://trivialnotes.sirius.cam|http://localhost:8080|' monaco/extension.json
 
 	3. Run a live server for editing
@@ -56,6 +60,7 @@ development
 	4. Revert change to extensions before contributing
 	$ sed -i 's|http://localhost:8080|https://trivialnotes.sirius.cam|' plain/extension.json
 	$ sed -i 's|http://localhost:8080|https://trivialnotes.sirius.cam|' password/extension.json
+	$ sed -i 's|http://localhost:8080|https://trivialnotes.sirius.cam|' authenticator/extension.json
 	$ sed -i 's|http://localhost:8080|https://trivialnotes.sirius.cam|' monaco/extension.json
 
 contributing

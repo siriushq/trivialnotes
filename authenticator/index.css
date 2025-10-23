@@ -1,0 +1,15 @@
+html, body {
+	margin: 0;
+	height: 100%;
+
+	background-color: var(--sn-stylekit-editor-background-color);
+	color: var(--sn-stylekit-editor-foreground-color);
+}
+
+::-webkit-scrollbar {
+	width: 6px;
+	background: var(--sn-stylekit-editor-background-color);
+}
+::-webkit-scrollbar-thumb {
+	background: var(--sn-stylekit-info-color);
+}
