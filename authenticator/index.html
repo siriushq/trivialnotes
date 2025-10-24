@@ -9,18 +9,30 @@
 	<link rel="stylesheet" href="index.css"/>
 </head>
 <body v-scope @vue:mounted="load">
-	<div v-if="authenticating">
-		<input class="input" type="number" @input="unlock($event.target.value)" placeholder="Enter your PIN"/>
+	<div class="startup" v-if="authenticating">
+		<span class="startup-title">This authenticator is protected.</span>
+		<span class="startup-subtitle">Please enter your PIN to continue.</span>
+		<input class="startup-pin"
+			   type="text"
+			   maxlength="6"
+			   @input="unlock($event.target.value)"/>
 	</div>
 
-	<div v-if="locking" v-scope="{ newPin: '' }">
-		<input class="input" type="number" v-model="newPin" placeholder="Enter a PIN to lock with"/>
-		<button type="submit" @click="lock(newPin)">Submit</button>
+	<div class="startup" v-if="locking" v-scope="{ newPin: '' }">
+		<span class="startup-title">This authenticator must be protected.</span>
+		<span class="startup-subtitle">Enter a memorable PIN to use. Data is irrecoverable if you lose it!</span>
+		<input class="startup-pin"
+			   type="text"
+			   maxlength="6"
+			   v-model="newPin"/>
+		<button class="startup-button" type="submit" @click="lock(newPin)">Submit</button>
 	</div>
 
 	<template v-if="!authenticating && !locking">
-		<div class="toolbar" v-scope="{ remaining: 0, accountName: '', accountSecret: '' }">
-			<span class="timer" @vue:mounted="setInterval(() => { remaining = totpRemaining() }, 500)">
+		<div class="toolbar" v-scope="{ accountName: '', accountSecret: '' }">
+			<span class="timer"
+				  v-scope="{ remaining: 0 }"
+				  @vue:mounted="setInterval(() => { remaining = totpRemaining() }, 500)">
 				{{ remaining }}s
 			</span>
 
@@ -34,14 +46,15 @@
 
 		<div class="accounts">
 			<template v-for="account of accounts">
-				<div :class="(account === accounts[selected]) ? 'account selected' : 'account'"
-					 v-scope="{ code: 0, interval: undefined }"
+				<div :class="(account.index === selected) ? 'account selected' : 'account'"
 					 @click="selected = account.index">
 					<span class="account-name">{{ account.name }}</span>
 					<span class="account-code"
-						  @click.stop="navigator.clipboard.writeText(code)"
+						  v-scope="{ code: 0, interval: undefined }"
 						  @vue:mounted="interval = setInterval(async() => { code = await totp(account.secret) }, 1000)"
-						  @vue:unmounted="clearInterval(interval)">{{ totpFormat(code) }}</span>
+						  @vue:unmounted="clearInterval(interval)">
+						{{ totpFormat(code) }}
+					</span>
 				</div>
 			</template>
 		</div>

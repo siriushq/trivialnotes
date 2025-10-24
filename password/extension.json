@@ -5,5 +5,5 @@
 	"content_type": "SN|Component",
 	"area": "editor-editor",
 	"version": "1.0",
-	"url": "https://trivialnotes.sirius.cam/password/index.html"
+	"url": "http://127.0.0.1:8080/password/index.html"
 }
