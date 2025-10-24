@@ -13,7 +13,7 @@
 		<span class="startup-title">This authenticator is protected.</span>
 		<span class="startup-subtitle">Please enter your PIN to continue.</span>
 		<input class="startup-pin"
-			   type="text"
+			   type="number"
 			   maxlength="6"
 			   @input="unlock($event.target.value)"/>
 	</div>
@@ -22,7 +22,7 @@
 		<span class="startup-title">This authenticator must be protected.</span>
 		<span class="startup-subtitle">Enter a memorable PIN to use. Data is irrecoverable if you lose it!</span>
 		<input class="startup-pin"
-			   type="text"
+			   type="number"
 			   maxlength="6"
 			   v-model="newPin"/>
 		<button class="startup-button" type="submit" @click="lock(newPin)">Submit</button>
