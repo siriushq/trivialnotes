@@ -39,6 +39,9 @@ editors
 	         as JSON and it begins with either '{' or '[', the content will be
 	         prettified for better viewing). prefix your note if you don't want this.
 
+	sheets — an editor that uses Jspreadsheet CE <https://bossanova.uk/jspreadsheet/>
+	         for viewing and editing spreadsheets, supporting copy-paste, etc.
+
 development
 ===========
 

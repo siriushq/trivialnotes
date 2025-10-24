@@ -1,0 +1,9 @@
+{
+	"identifier": "sirius.trivialnotes.sheets",
+	"name": "siriushq/trivialnotes: Spreadsheet Editor",
+	"description": "see https://github.com/siriushq/trivialnotes",
+	"content_type": "SN|Component",
+	"area": "editor-editor",
+	"version": "1.0",
+	"url": "https://trivialnotes.sirius.cam/sheets/index.html"
+}
