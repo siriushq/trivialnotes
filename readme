@@ -1,98 +1,112 @@
 siriushq/trivialnotes
 =====================
 
-	Simple editor implementations for Standard Notes <https://standardnotes.com>.
-	Intentionally kept as minimal as possible. Install from our mirror as such:
+Simple editor implementations for Standard Notes <https://standardnotes.com>.
+Intentionally kept as minimal as possible. Install from our mirror as such:
 
-		https://trivialnotes.sirius.cam/<editor>/extension.json
+	https://trivialnotes.sirius.cam/<editor>/extension.json
 
-	...substituting the name of the editor you desire.
-	Installation has only been tested working from the desktop client, but the
-	editors function across all platforms, once installed.
+...substituting the name of the editor you desire.
+Installation has only been tested working from the desktop client, but the
+editors function across all platforms, once installed.
 
 editors
 =======
 
-	Editors that store serialized data are designed to not clash with each other
-	or corrupt a note that may contain other data. It is not guaranteed that they
-	will not clash with third-party editors not part of this repository.
+Editors that store serialized data are designed to not clash with each other
+or corrupt a note that may contain other data. It is not guaranteed that they
+will not clash with third-party editors not part of this repository.
 
-	plain — a plain text editor that serves as the reference implementation for any
-	        editors in this repository (and debugging tool for developing new ones).
+plain — a plain text editor that serves as the reference implementation for any
+        editors in this repository (and debugging tool for developing new ones).
 
-	password — a password manager interface. this can store any kind of information
-	           on top of the actual accounts themselves. it uses Brandfetch to get
-	           logos for you, you should change client ID when using it (included one
-	           is an anonymous default).
+password — a password manager interface. this can store any kind of information
+           on top of the actual accounts themselves. it uses Brandfetch to get
+           logos for you, you should change client ID when using it
+           (included one is an anonymous default).
 
-	authenticator — a TOTP authenticator interface that only stores a name and secret
-	                for simple authentication, just like e.g. Okta Verify, except with
-	                secure multi-device sync powered by StandardNotes.
+authenticator — a TOTP authenticator interface that only stores a name and
+                secret for simple authentication, just like e.g. Okta Verify,
+                except with secure multi-device sync powered by StandardNotes.
 
-	                note: this editor must be served over HTTPS due to limitations of
-	                SubtleCrypto API <developer.mozilla.org/docs/Web/API/SubtleCrypto>.
+                The PIN that this editor exposes is used to derive encryption,
+                on top of the existing encryption provided by StandardNotes, to
+                allow the same account be used for password management and
+                for real two-factor authentication.
 
-	monaco — an editor that uses Monaco <https://microsoft.github.io/monaco-editor/>
-	         for viewing and editing code samples.
+                note: this editor must be served over HTTPS due to limitations
+                of SubtleCrypto API.
 
-	         note: if the content of a note is just pure JSON (i.e., it can be parsed
-	         as JSON and it begins with either '{' or '[', the content will be
-	         prettified for better viewing). prefix your note if you don't want this.
+                <developer.mozilla.org/docs/Web/API/SubtleCrypto>.
 
-	sheets — an editor that uses Jspreadsheet CE <https://bossanova.uk/jspreadsheet/>
-	         for viewing and editing spreadsheets, supporting copy-paste, etc.
+monaco — an editor that uses Monaco <https://microsoft.github.io/monaco-editor>
+	     for viewing and editing code samples.
+
+	     note: if the content of a note is just pure JSON (i.e., it can be
+	     parsed as JSON and it begins with either '{' or '[', the content will
+	     be prettified for better viewing).
+
+	     prefix your note if this behaviour is not preferred.
+
+sheets — an editor that uses Jspreadsheet CE <https://bossanova.uk/jspreadsheet>
+	     for viewing and editing spreadsheets, supporting copy-paste, etc.
 
 development
 ===========
 
-	To begin live editing, install Git & Bun and run the following commands:
+To begin live editing, install Git & Bun and run the following commands,
+adjusting for the shell you are running in:
 
-	1. Clone the repository
 	$ git clone git@github.com:siriushq/trivialnotes.git
 	$ cd trivialnotes
 
-	2. Point all extensions to localhost
-	$ sed -i 's|https://trivialnotes.sirius.cam|http://localhost:8080|' plain/extension.json
-	$ sed -i 's|https://trivialnotes.sirius.cam|http://localhost:8080|' password/extension.json
-	$ sed -i 's|https://trivialnotes.sirius.cam|http://localhost:8080|' authenticator/extension.json
-	$ sed -i 's|https://trivialnotes.sirius.cam|http://localhost:8080|' monaco/extension.json
-
-	3. Run a live server for editing
+	# Point all extensions to localhost
+	$ sed -i \
+		's|https://trivialnotes.sirius.cam|http://localhost:8080|' \
+		plain/extension.json \
+		password/extension.json \
+		authenticator/extension.json \
+		monaco/extension.json
+	
+	# Run a live server for editing
+	# (encrypted editors will require a HTTPS server with certificate)
 	$ bunx http-server -p 8080 --cors .
 
-	4. Revert change to extensions before contributing
-	$ sed -i 's|http://localhost:8080|https://trivialnotes.sirius.cam|' plain/extension.json
-	$ sed -i 's|http://localhost:8080|https://trivialnotes.sirius.cam|' password/extension.json
-	$ sed -i 's|http://localhost:8080|https://trivialnotes.sirius.cam|' authenticator/extension.json
-	$ sed -i 's|http://localhost:8080|https://trivialnotes.sirius.cam|' monaco/extension.json
+	# Revert change to extensions before contributing
+	$ sed -i \
+		's|http://localhost:8080|https://trivialnotes.sirius.cam|' \
+		plain/extension.json \
+		password/extension.json \
+		authenticator/extension.json \
+		monaco/extension.json
 
 contributing
 ============
 
-	Contributions are accepted as long as they fall within implied project scope.
+Contributions are accepted as long as they fall within implied project scope.
 
-	All commits must contain at least `Signed-off-by` to identify the author of the
-	contribution, and may contain `Co-authored-by` to attach any number of other
-	authors (this can be added automatically with `git commit ... -s ...`).
+All commits must contain at least `Signed-off-by` to identify the author of the
+contribution, and may contain `Co-authored-by` to attach any number of other
+authors (this can be added automatically with `git commit ... -s ...`).
 
-	(furthermore, commits from people with repository write access are to be signed
-	with a verified GPG, SSH or S/MIME signature attached to your GitHub account).
+(furthermore, commits from people with repository write access are to be signed
+with a verified GPG, SSH or S/MIME signature attached to your GitHub account).
 
-	By submitting a contribution, you certify that you and other authors are making
-	your contribution available under the license of the project, and that you have
-	the rights to submit it.
+By submitting a contribution, you certify that you and other authors are making
+your contribution available under the license of the project, and that you have
+the rights to submit it.
 
 security
 ========
 
-	Every editor here is trivial enough that anyone with programming experience
-	should be able to audit it themselves with minimal hassle.
+Every editor here is trivial enough that anyone with programming experience
+should be able to audit it themselves with minimal hassle.
 
-	You may wish to audit the content of `trivialnotes.sirius.cam` & `esm.run`.
+You may wish to audit the content of `trivialnotes.sirius.cam` & `esm.run`.
 
 licensing
 =========
 
-	This project is licensed under the 3-Clause BSD.
-	This is being done at our loss. Consider starring this repository and/or buying our
-	products to support the development and future of this project.
+This project is licensed under the 3-Clause BSD.
+This is being done at our loss. Consider starring this repository and/or buying our
+products to support the development and future of this project.
