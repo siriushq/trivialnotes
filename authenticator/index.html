@@ -1,63 +1,103 @@
 <!doctype html>
 <html lang="en">
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>siriushq/trivialnotes: TOTP Authenticating Editor</title>
 
-	<script type="module" src="index.js"></script>
-	<link rel="stylesheet" href="index.css"/>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>siriushq/trivialnotes: TOTP Authenticating Editor</title>
+
+<script type="module" src="index.js"></script>
+<link rel="stylesheet" href="index.css"/>
+
 </head>
 <body v-scope @vue:mounted="load">
-	<div class="startup" v-if="authenticating">
-		<span class="startup-title">This authenticator is protected.</span>
-		<span class="startup-subtitle">Please enter your PIN to continue.</span>
-		<input class="startup-pin"
-			   type="tel" inputmode="numeric" pattern="[0-9]*"
-			   maxlength="6"
-			   @input="unlock($event.target.value)"/>
+
+<div class="startup" v-if="authenticating">
+	<span class="startup-title">This authenticator is protected.</span>
+	<span class="startup-subtitle">Please enter your PIN to continue.</span>
+	<input class="startup-pin"
+		type="tel" inputmode="numeric" pattern="[0-9]*"
+		maxlength="6"
+		@input="unlock($event.target.value)"/>
+</div>
+
+<div class="startup" v-if="locking" v-scope="{ newPin: '' }">
+	<span class="startup-title">
+	This authenticator must be protected.
+	</span>
+
+	<span class="startup-subtitle">
+	Enter a memorable PIN to use. Data is irrecoverable if you lose it!
+	</span>
+
+	<input class="startup-pin"
+		   type="tel" inputmode="numeric" pattern="[0-9]*"
+		   maxlength="6"
+		   v-model="newPin"/>
+
+	<button class="startup-button"
+		type="submit" @click="lock(newPin)">
+	Submit
+	</button>
+</div>
+
+<template v-if="!authenticating && !locking">
+<div class="toolbar"
+	v-scope="{ accountName: '', accountSecret: '' }">
+
+	<span class="timer"
+		v-scope="{ remaining: 0 }"
+		@vue:mounted="setInterval(() => { remaining = totpRemaining() }, 500)">
+	{{ remaining }}s
+	</span>
+
+	<input class="input"
+		type="text" placeholder="Account Name" v-model="accountName"/>
+	<input class="input"
+		type="text" placeholder="Account Secret" v-model="accountSecret"/>
+
+	<button class="action action-insert"
+		type="submit" @click="account(accountName, accountSecret)">
+	Insert
+	</button>
+
+	<button class="action action-remove"
+		v-if="selected !== undefined" @click="remove()">
+	Delete
+	</button>
+
+	<button class="action action-deselect"
+		v-if="selected !== undefined" @click="selected = undefined">
+	Deselect
+	</button>
+</div>
+
+<div class="accounts">
+	<template v-for="account of accounts">
+	<div
+		:class="(account.index === selected) ? 'account selected' : 'account'"
+		@click="selected = account.index">
+		 
+		<span class="account-name">
+		{{ account.name }}
+		</span>
+
+		<span class="account-code"
+			v-scope="{ code: 0, interval: undefined }"
+			@vue:mounted="
+			interval = setInterval(async() => {
+				code = await totp(account.secret);
+			}, 1000);
+			"
+			@vue:unmounted="
+			clearInterval(interval)
+			">
+		{{ totpFormat(code) }}
+		</span>
 	</div>
-
-	<div class="startup" v-if="locking" v-scope="{ newPin: '' }">
-		<span class="startup-title">This authenticator must be protected.</span>
-		<span class="startup-subtitle">Enter a memorable PIN to use. Data is irrecoverable if you lose it!</span>
-		<input class="startup-pin"
-			   type="tel" inputmode="numeric" pattern="[0-9]*"
-			   maxlength="6"
-			   v-model="newPin"/>
-		<button class="startup-button" type="submit" @click="lock(newPin)">Submit</button>
-	</div>
-
-	<template v-if="!authenticating && !locking">
-		<div class="toolbar" v-scope="{ accountName: '', accountSecret: '' }">
-			<span class="timer"
-				  v-scope="{ remaining: 0 }"
-				  @vue:mounted="setInterval(() => { remaining = totpRemaining() }, 500)">
-				{{ remaining }}s
-			</span>
-
-			<input class="input" type="text" placeholder="Account Name" v-model="accountName"/>
-			<input class="input" type="text" placeholder="Account Secret" v-model="accountSecret"/>
-			<button class="action action-insert" type="submit" @click="account(accountName, accountSecret)">Insert</button>
-
-			<button class="action action-remove" v-if="selected !== undefined" @click="remove()">Delete</button>
-			<button class="action action-deselect" v-if="selected !== undefined" @click="selected = undefined">Deselect</button>
-		</div>
-
-		<div class="accounts">
-			<template v-for="account of accounts">
-				<div :class="(account.index === selected) ? 'account selected' : 'account'"
-					 @click="selected = account.index">
-					<span class="account-name">{{ account.name }}</span>
-					<span class="account-code"
-						  v-scope="{ code: 0, interval: undefined }"
-						  @vue:mounted="interval = setInterval(async() => { code = await totp(account.secret) }, 1000)"
-						  @vue:unmounted="clearInterval(interval)">
-						{{ totpFormat(code) }}
-					</span>
-				</div>
-			</template>
-		</div>
 	</template>
+</div>
+</template>
+
 </body>
 </html>

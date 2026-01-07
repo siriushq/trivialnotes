@@ -12,6 +12,26 @@ import "https://esm.run/jsuites/dist/jsuites.css";
 
 import extension from "./extension.json" with { type: "json" };
 
+
+const ERROR_JSON = `
+	spreadsheet editor stopped loading to protect your note content.
+	<br/>
+	to use this editor, you must initialise a note containing '{}'.
+	otherwise, this editor will be disabled to avoid corruption.`;
+const ERROR_JSON_PLAIN =
+	ERROR_JSON.replace(/<br\/>/g, "");
+
+const ERROR_EDITOR = it => `
+	spreadsheet editor stopped loading to protect your note content.
+	<br/>
+	it seems like you may have used this on a note containing JSON
+	data that is not for this spreadsheet editor.
+	<br/>
+	expected '${extension.identifier}', found '${it}'.`;
+const ERROR_EDITOR_PLAIN = it =>
+	ERROR_EDITOR(it).replace(/<br\/>/g, "");
+
+
 // TODO - Drop-in replacements for alert, prompt, confirm
 // Electron does not support prompt & confirm, so we need to shim them to our UI
 //
@@ -29,46 +49,48 @@ import extension from "./extension.json" with { type: "json" };
 //     return false;
 // };
 
+
+/** Save to Standard Notes. */
+function save() {
+	const editor = extension.identifier;
+	const content = this.content;
+
+	standardnotes.text = JSON.stringify({ content, editor });	
+}
+
+/** Listen for published edit events from Standard Notes. */
+function listen(text) {
+	if (!text || !text.startsWith("{")) {
+		document.body.innerHTML = ERROR_JSON;
+		throw new Error(ERROR_JSON_PLAIN);
+	}
+	let { editor, content } = JSON.parse(text);
+	if (editor && editor !== extension.identifier) {
+		document.body.innerHTML = ERROR_EDITOR(editor);
+		throw new Error(ERROR_EDITOR_PLAIN(editor));
+	}
+
+	if (!Array.isArray(content)) content = [];
+	this.content = content;
+}
+
+/** Initialize the editor. */
+function load() {
+	standardnotes.initialize();
+	standardnotes.subscribe(this.listen.bind(this));
+
+	const element = document.getElementById("spreadsheet");
+	jspreadsheet(element, {
+		data: this.content,
+		worksheets: [{
+			minDimensions: [24, 24]
+		}]
+	});
+}
+
 createApp({
 	content: [],
-
-	/** Save to StandardNotes. */
-	save() {
-		const editor = extension.identifier;
-		const content = this.content;
-
-		standardnotes.text = JSON.stringify({ content, editor });
-	},
-
-	/** Initialize the editor. */
-	load() {
-		standardnotes.initialize();
-		standardnotes.subscribe(text => {
-			if (!text || !text.startsWith("{")) {
-				document.body.innerHTML = `
-				spreadsheet editor stopped loading to protect your note content.<br/>
-				to use this editor, you must initialise a note containing '{}'.<br/>
-				if this is not detected, this editor does not run to prevent corruption!`;
-				throw new Error("text does not contain JSON object!");
-			}
-			let { editor, content } = JSON.parse(text);
-			if (editor && editor !== extension.identifier) {
-				document.body.innerHTML = `
-				spreadsheet editor stopped loading to protect your note content.<br/>
-				it seems like you may have used this on a JSON note that is not for this spreadsheet editor.`;
-				throw new Error(`incorrect editor! note says '${editor}', should be ${extension.identifier}`);
-			}
-
-			if (!Array.isArray(content)) content = [];
-			this.content = content;
-		});
-
-		const element = document.getElementById("spreadsheet");
-		jspreadsheet(element, {
-			data: this.content,
-			worksheets: [{
-				minDimensions: [24, 24]
-			}]
-		});
-	}
+	save,
+	listen,
+	load
 }).mount();

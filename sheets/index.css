@@ -18,23 +18,32 @@ body::before {
 	width: 100vw;
 	height: 100vh;
 
-	border: 2px solid var(--sn-stylekit-editor-background-color);
+	border:	var(--sn-stylekit-editor-background-color) 2px solid;
 	pointer-events: none;
 	box-sizing: border-box;
 	z-index: 9999;
 }
 
 :root {
-	--header_color: color-mix(in srgb, var(--sn-stylekit-foreground-color), var(--header_background) 50%);
+	--header_color: color-mix(
+		in srgb,
+		var(--sn-stylekit-foreground-color),
+		var(--header_background) 50%);
 	--header_color_highlighted: var(--sn-stylekit-foreground-color);
 
 	--header_background: var(--sn-stylekit-background-color);
-	--header_background_highlighted: color-mix(in srgb, var(--header_background), var(--sn-stylekit-info-color) 40%);
+	--header_background_highlighted: color-mix(
+		in srgb,
+		var(--header_background),
+		var(--sn-stylekit-info-color) 40%);
 
 	--content_color: var(--sn-stylekit-editor-foreground-color);
 	--content_color_highlighted: var(--sn-stylekit-editor-foreground-color);
 	--content_background: var(--sn-stylekit-passive-color-4);
-	--content_background_highlighted: color-mix(in srgb, var(--content_background), var(--sn-stylekit-info-color) 40%);
+	--content_background_highlighted: color-mix(
+		in srgb,
+		var(--content_background),
+		var(--sn-stylekit-info-color) 40%);
 
 	--menu_background: #7e7e7e;
 	--menu_background_highlighted: #ebebeb;
@@ -67,7 +76,7 @@ body::before {
 }
 
 .jcontextmenu {
-	background: var(--sn-stylekit-editor-background-color) !important;
+	background:	var(--sn-stylekit-editor-background-color) !important;
 	color: var(--sn-stylekit-editor-foreground-color) !important;
 
 	-webkit-box-shadow: none !important;

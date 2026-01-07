@@ -165,7 +165,11 @@ html, body {
 	outline: none;
 
 	&:hover {
-		border: color-mix(in srgb, var(--sn-stylekit-border-color), white 20%) 1px solid;
+		border: color-mix(
+			in srgb,
+			var(--sn-stylekit-border-color),
+			white 20%
+		) 1px solid;
 	}
 }
 
